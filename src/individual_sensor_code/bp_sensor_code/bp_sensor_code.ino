@@ -14,8 +14,8 @@
 //
 /////////////////////////////////////////////////////////////////////////////////////////
 
-
 #include <Wire.h>
+
 #include "max32664.h"
 
 #define RESET_PIN 04
@@ -24,105 +24,93 @@
 
 max32664 MAX32664(RESET_PIN, MFIO_PIN, RAWDATA_BUFFLEN);
 
-
 void mfioInterruptHndlr() {
-  //Serial.println("i");
+    //Serial.println("i");
 }
 
 void enableInterruptPin() {
-
-  //pinMode(mfioPin, INPUT_PULLUP);
-  attachInterrupt(digitalPinToInterrupt(MAX32664.mfioPin), mfioInterruptHndlr, FALLING);
-
+    //pinMode(mfioPin, INPUT_PULLUP);
+    attachInterrupt(digitalPinToInterrupt(MAX32664.mfioPin), mfioInterruptHndlr, FALLING);
 }
 
 void loadAlgomodeParameters() {
-
-  algomodeInitialiser algoParameters;
-  /*  Replace the predefined values with the calibration values taken with a reference spo2 device in a controlled environt.
+    algomodeInitialiser algoParameters;
+    /*  Replace the predefined values with the calibration values taken with a reference spo2 device in a controlled environt.
       Please have a look here for more information, https://pdfserv.maximintegrated.com/en/an/an6921-measuring-blood-pressure-MAX32664D.pdf
       https://github.com/Protocentral/protocentral-pulse-express/blob/master/docs/SpO2-Measurement-Maxim-MAX32664-Sensor-Hub.pdf
   */
 
-  algoParameters.calibValSys[0] = 120;
-  algoParameters.calibValSys[1] = 122;
-  algoParameters.calibValSys[2] = 125;
+    algoParameters.calibValSys[0] = 120;
+    algoParameters.calibValSys[1] = 122;
+    algoParameters.calibValSys[2] = 125;
 
-  algoParameters.calibValDia[0] = 80;
-  algoParameters.calibValDia[1] = 81;
-  algoParameters.calibValDia[2] = 82;
+    algoParameters.calibValDia[0] = 80;
+    algoParameters.calibValDia[1] = 81;
+    algoParameters.calibValDia[2] = 82;
 
-  algoParameters.spo2CalibCoefA = 1.5958422;
-  algoParameters.spo2CalibCoefB = -34.659664;
-  algoParameters.spo2CalibCoefC = 112.68987;
+    algoParameters.spo2CalibCoefA = 1.5958422;
+    algoParameters.spo2CalibCoefB = -34.659664;
+    algoParameters.spo2CalibCoefC = 112.68987;
 
-  MAX32664.loadAlgorithmParameters(&algoParameters);
+    MAX32664.loadAlgorithmParameters(&algoParameters);
 }
 
-void callibrateBPSENSOR(){
-
-  
+void callibrateBPSENSOR() {
 }
 
 void setup() {
+    Serial.begin(57600);
 
-  Serial.begin(57600);
+    Wire.begin();
 
-  Wire.begin();
+    loadAlgomodeParameters();
 
-  loadAlgomodeParameters();
-
-  int result = MAX32664.hubBegin();
-  if (result == CMD_SUCCESS) {
-    Serial.println("Sensorhub begin!");
-  }
-  else {
-    while (result != CMD_SUCCESS) {
-      Serial.println("Could not communicate with the sensor! please make proper connections");
-      delay(5000);
-      result = MAX32664.hubBegin();
+    int result = MAX32664.hubBegin();
+    if (result == CMD_SUCCESS) {
+        Serial.println("Sensorhub begin!");
+    } else {
+        while (result != CMD_SUCCESS) {
+            Serial.println("Could not communicate with the sensor! please make proper connections");
+            delay(5000);
+            result = MAX32664.hubBegin();
+        }
     }
-  }
 
-  bool ret = MAX32664.startBPTcalibration();
-  while (!ret) {
+    bool ret = MAX32664.startBPTcalibration();
+    while (!ret) {
+        delay(10000);
+        Serial.println("failed calib, please retsart");
+        //ret = MAX32664.startBPTcalibration();
+    }
 
-    delay(10000);
-    Serial.println("failed calib, please retsart");
-    //ret = MAX32664.startBPTcalibration();
-  }
+    delay(1000);
 
-  delay(1000);
-
-  //Serial.println("start in estimation mode");
-  ret = MAX32664.configAlgoInEstimationMode();
-  while (!ret) {
-
-    //Serial.println("failed est mode");
+    //Serial.println("start in estimation mode");
     ret = MAX32664.configAlgoInEstimationMode();
-    delay(10000);
-  }
+    while (!ret) {
+        //Serial.println("failed est mode");
+        ret = MAX32664.configAlgoInEstimationMode();
+        delay(10000);
+    }
 
-  //MAX32664.enableInterruptPin();
-  Serial.println("Getting the device ready..");
-  delay(1000);
+    //MAX32664.enableInterruptPin();
+    Serial.println("Getting the device ready..");
+    delay(1000);
 }
 
 void loop() {
+    uint8_t num_samples = MAX32664.readSamples();
 
-  uint8_t num_samples = MAX32664.readSamples();
+    if (num_samples) {
+        Serial.print("sys = ");
+        Serial.print(MAX32664.max32664Output.sys);
+        Serial.print(", dia = ");
+        Serial.print(MAX32664.max32664Output.dia);
+        Serial.print(", hr = ");
+        Serial.print(MAX32664.max32664Output.hr);
+        Serial.print(" spo2 = ");
+        Serial.println(MAX32664.max32664Output.spo2);
+    }
 
-  if (num_samples) {
-
-    Serial.print("sys = ");
-    Serial.print(MAX32664.max32664Output.sys);
-    Serial.print(", dia = ");
-    Serial.print(MAX32664.max32664Output.dia);
-    Serial.print(", hr = ");
-    Serial.print(MAX32664.max32664Output.hr);
-    Serial.print(" spo2 = ");
-    Serial.println(MAX32664.max32664Output.spo2);
-  }
-
-  delay(100);
+    delay(100);
 }
