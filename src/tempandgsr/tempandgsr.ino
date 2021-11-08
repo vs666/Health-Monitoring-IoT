@@ -20,13 +20,23 @@ IPAddress subnet(255, 255, 255, 0);
 
 int sensorValue=0;
 int gsr_average=0;
+char * hash(String inp){
+  char *input;
+  inp.toCharArray(input,inp.length());
+  /**
+   * TO BE DONE BY SRI-RAM
+   */
+}
 
 
-String getCipher(char * input)
+String getCipher(String inp)
 {
+  char *input;
+  inp.toCharArray(input,inp.length());
   mbedtls_aes_context aes;
  
-  char * key = "abcdefghijklmnop";
+  char * key_unhashed = "abcdefghijklmnop";
+  char * key = hash(key_unhashed);
   unsigned char output[16];
   mbedtls_aes_init( &aes );
   mbedtls_aes_setkey_enc( &aes, (const unsigned char*) key, strlen(key) * 8 );
@@ -45,9 +55,15 @@ String getCipher(char * input)
 }
 
 
-String getData(temp,gsr,h_resist){
+String getData(float temp,long gsr,float h_resist){
   String di = "{\"temperature\":\""+String(temp,0)+"\",\"GSR\":"+String(gsr,0)+"\",\"human_resistance\":"+String(h_resist,0)+"\"}";
   return getCipher(di);
+}
+
+String getUploadData(float temp,long gsr,float h_resist){
+  String msg = getData(temp,gsr,h_resist);
+  String di = "{\"message\":"+msg+",\"hash\":\""+hash(msg)+"\"}";
+  return di;
 }
 
 void connect_wifi() {
