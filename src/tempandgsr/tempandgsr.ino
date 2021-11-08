@@ -38,7 +38,7 @@ char * hash(String inp)
   mbedtls_md_free(&ctx);
 
   Serial.print("Hash: ");
-  String ret="";
+  String ret="0x";
   for(int i= 0; i< sizeof(shaResult); i++)
   {
   char str[3];
