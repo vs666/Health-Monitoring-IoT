@@ -1,5 +1,6 @@
 #include <Wire.h>
 #include "WebServer.h"
+#include "mbedtls/aes.h"
 #include "WiFi.h"
 #include "Protocentral_MAX30205.h"
 MAX30205 tempSensor;
@@ -19,6 +20,35 @@ IPAddress subnet(255, 255, 255, 0);
 
 int sensorValue=0;
 int gsr_average=0;
+
+
+String getCipher(char * input)
+{
+  mbedtls_aes_context aes;
+ 
+  char * key = "abcdefghijklmnop";
+  unsigned char output[16];
+  mbedtls_aes_init( &aes );
+  mbedtls_aes_setkey_enc( &aes, (const unsigned char*) key, strlen(key) * 8 );
+  mbedtls_aes_crypt_ecb(&aes, MBEDTLS_AES_ENCRYPT, (const unsigned char*)input, output);
+  mbedtls_aes_free( &aes );
+  
+  String ret="";
+  for (int i = 0; i < 16; i++) {
+ 
+    char str[3];
+ 
+    sprintf(str, "%02x", (int)output[i]);
+    ret+=str;
+  }
+  return ret;
+}
+
+
+String getData(temp,gsr,h_resist){
+  String di = "{\"temperature\":\""+String(temp,0)+"\",\"GSR\":"+String(gsr,0)+"\",\"human_resistance\":"+String(h_resist,0)+"\"}";
+  return getCipher(di);
+}
 
 void connect_wifi() {
     WiFi.mode(WIFI_STA);
