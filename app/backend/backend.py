@@ -1,4 +1,5 @@
 from hashlib import sha256
+import json
 from typing import Protocol
 from flask import *
 import flask
@@ -19,10 +20,14 @@ def authenticate():
 def get_data():
     try:
         param = request.get_json()
-        data = get_all_data(param['username'])
+        data = get_all_data(param['username'])  # Returns dictionary {'message':...,'hash':...}
         dec_key = param['key']
-        decipher = AES.new(dec_key, AES.MODE_ECB)
-        return {'status':'ok','message':str(decipher.decrypt(data))}
+        decipher = AES.new((int(sha256(dec_key).hexdigest(),16)).to_bytes(32,'big'), AES.MODE_ECB)
+        data_out = json.loads(decipher.decrypt(data['message']).decode())
+        if data_out['hash'] == sha256(data['message']).hexdigest():
+            return {'status':'ok','message':data_out}
+        else:
+            return {'status':'error','log':'checksum failed'}
     except:
         return {'status':'error','log':'server error'}
 
