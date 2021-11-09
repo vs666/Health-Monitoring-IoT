@@ -1,11 +1,12 @@
 #include <Wire.h>
-#include "WebServer.h"
-#include "mbedtls/aes.h"
-#include "WiFi.h"
+
 #include "Protocentral_MAX30205.h"
+#include "WebServer.h"
+#include "WiFi.h"
+#include "mbedtls/aes.h"
 MAX30205 tempSensor;
 
-const int GSR=34;
+const int GSR = 34;
 const char* ssid = "TP-Link_6B5E";
 const char* ssid_2 = "Kronos";
 const char* pswd = "---ENTER-PASSWORD-HERE---";
@@ -17,77 +18,70 @@ IPAddress local_ip(192, 168, 0, 1);
 IPAddress gateway(192, 168, 1, 1);
 IPAddress subnet(255, 255, 255, 0);
 
+int sensorValue = 0;
+int gsr_average = 0;
+char* hash(String inp) {
+    char* payload;
+    inp.toCharArray(payload, inp.length());
+    byte shaResult[32];
+    mbedtls_md_context_t ctx;
+    mbedtls_md_type_t md_type = MBEDTLS_MD_SHA256;
 
-int sensorValue=0;
-int gsr_average=0;
-char * hash(String inp)
-{
-  char *payload;
-  inp.toCharArray(payload,inp.length());
-  byte shaResult[32];
-  mbedtls_md_context_t ctx;
-  mbedtls_md_type_t md_type = MBEDTLS_MD_SHA256;
+    const size_t payloadLength = strlen(payload);
 
-  const size_t payloadLength = strlen(payload);
+    mbedtls_md_init(&ctx);
+    mbedtls_md_setup(&ctx, mbedtls_md_info_from_type(md_type), 0);
+    mbedtls_md_starts(&ctx);
+    mbedtls_md_update(&ctx, (const unsigned char*)payload, payloadLength);
+    mbedtls_md_finish(&ctx, shaResult);
+    mbedtls_md_free(&ctx);
 
-  mbedtls_md_init(&ctx);
-  mbedtls_md_setup(&ctx, mbedtls_md_info_from_type(md_type), 0);
-  mbedtls_md_starts(&ctx);
-  mbedtls_md_update(&ctx, (const unsigned char *) payload, payloadLength);
-  mbedtls_md_finish(&ctx, shaResult);
-  mbedtls_md_free(&ctx);
-
-  Serial.print("Hash: ");
-  String ret="0x";
-  for(int i= 0; i< sizeof(shaResult); i++)
-  {
-  char str[3];
-  sprintf(str, "%02x", (int)shaResult[i]);
-  ret+=str;
-  }
-  Serial.println(ret);
-  return ret;
-  char * outt;
-  ret.toCharArray(outt,ret.length());
-  return outt;
+    Serial.print("Hash: ");
+    String ret = "0x";
+    for (int i = 0; i < sizeof(shaResult); i++) {
+        char str[3];
+        sprintf(str, "%02x", (int)shaResult[i]);
+        ret += str;
+    }
+    Serial.println(ret);
+    return ret;
+    char* outt;
+    ret.toCharArray(outt, ret.length());
+    return outt;
 }
 
+String getCipher(String inp) {
+    char* input;
+    inp.toCharArray(input, inp.length());
+    mbedtls_aes_context aes;
 
-String getCipher(String inp)
-{
-  char *input;
-  inp.toCharArray(input,inp.length());
-  mbedtls_aes_context aes;
- 
-  char * key_unhashed = "abcdefghijklmnop";
-  char * key = hash(key_unhashed);
-  unsigned char output[16];
-  mbedtls_aes_init( &aes );
-  mbedtls_aes_setkey_enc( &aes, (const unsigned char*) key, strlen(key) * 8 );
-  mbedtls_aes_crypt_ecb(&aes, MBEDTLS_AES_ENCRYPT, (const unsigned char*)input, output);
-  mbedtls_aes_free( &aes );
-  
-  String ret="";
-  for (int i = 0; i < 16; i++) {
- 
-    char str[3];
- 
-    sprintf(str, "%02x", (int)output[i]);
-    ret+=str;
-  }
-  return ret;
+    char* key_unhashed = "abcdefghijklmnop";
+    char* key = hash(key_unhashed);
+    unsigned char output[16];
+    mbedtls_aes_init(&aes);
+    mbedtls_aes_setkey_enc(&aes, (const unsigned char*)key, strlen(key) * 8);
+    mbedtls_aes_crypt_ecb(&aes, MBEDTLS_AES_ENCRYPT, (const unsigned char*)input, output);
+    mbedtls_aes_free(&aes);
+
+    String ret = "";
+    for (int i = 0; i < 16; i++) {
+        char str[3];
+
+        sprintf(str, "%02x", (int)output[i]);
+        ret += str;
+    }
+    return ret;
 }
 
-
-String getData(float temp,long gsr,float h_resist){
-  String di = "{\"temperature\":\""+String(temp,0)+"\",\"GSR\":"+String(gsr,0)+"\",\"human_resistance\":"+String(h_resist,0)+"\"}";
-  return getCipher(di);
+String getData(float temp, long gsr, float h_resist) {
+    String di = "{\"temperature\":\"" + String(temp, 0) + "\",\"GSR\":" + String(gsr, 0) + "\",\"human_resistance\":" + String(h_resist, 0) + "\"}";
+    return getCipher(di);
 }
 
-String getUploadData(float temp,long gsr,float h_resist){
-  String msg = getData(temp,gsr,h_resist);
-  String di = "{\"message\":"+msg+",\"hash\":\""+hash(msg)+"\"}";
-  return di;
+String getUploadData(float temp, long gsr, float h_resist) {
+    String msg = getData(temp, gsr, h_resist);
+    String di = "{\"message\":" + msg + ",\"hash\":\"" + hash(msg) + "\"}";
+    return di;
 }
 
 void connect_wifi() {
@@ -135,40 +129,34 @@ void handleInformation() {
     server.send(200, "text/html", information);
 }
 
-
-
-float getTemp(){
-   return tempSensor.getTemperature();
+float getTemp() {
+    return tempSensor.getTemperature();
 }
 
-
-long getGsrAverage(){
-  long sum=0;
-  for(int i=0;i<10;i++)           //Average the 10 measurements to remove the glitch
-      {
-      sensorValue=analogRead(GSR);
-      sum += sensorValue;
-      delay(5);
-      }
-   gsr_average = sum/10;
-   return gsr_average;
-  
+long getGsrAverage() {
+    long sum = 0;
+    for (int i = 0; i < 10; i++)  //Average the 10 measurements to remove the glitch
+    {
+        sensorValue = analogRead(GSR);
+        sum += sensorValue;
+        delay(5);
+    }
+    gsr_average = sum / 10;
+    return gsr_average;
 }
 
-float getHumanResistance(){
-  int human_resistance=((4095.0+2.0*gsr_average)*10000.0)/(1000.0-gsr_average);
-  return human_resistance/100000.0; 
+float getHumanResistance() {
+    int human_resistance = ((4095.0 + 2.0 * gsr_average) * 10000.0) / (1000.0 - gsr_average);
+    return human_resistance / 100000.0;
 }
-
 
 void setup() {
+    Serial.begin(115200);
 
-  Serial.begin(115200);
-
-  /**
+    /**
    * WIFI MODULE CODE 
    */
-   connect_wifi();
+    connect_wifi();
     /**
    * Not sure what is the use of making 2 wifi APs. 
    */
@@ -185,31 +173,29 @@ void setup() {
    * 4. showAnalytics
    * 
    */
-    server.begin();  
+    server.begin();
     Wire.begin();
-    analogReadResolution(GSR); //12 bits
+    analogReadResolution(GSR);  //12 bits
     analogSetPinAttenuation(GSR, ADC_11db);
     //scan for temperature in every 30 sec untill a sensor is found. Scan for both addresses 0x48 and 0x49
-    while(!tempSensor.scanAvailableSensors()){
-      Serial.println("Couldn't find the temperature sensor, please connect the sensor." );
-      delay(3000);
+    while (!tempSensor.scanAvailableSensors()) {
+        Serial.println("Couldn't find the temperature sensor, please connect the sensor.");
+        delay(3000);
     }
-    tempSensor.begin();   // set continuos mode, active mode
+    tempSensor.begin();  // set continuos mode, active mode
     Serial.println("temperature sensor active");
 }
 
-
 void loop() {
-
-  float temp =  getTemp(); // read temperature for every 100ms
-  temp=(temp*1.8)+32;
-  Serial.print(temp ,2);
-  Serial.print("'f , " );
-  gsr_average = getGsrAverage();
-  Serial.print("gsr_average = ");
-  Serial.print(gsr_average);
-  int human_resistance=getHumanResistance();
-  Serial.print(" , human_resistance = ");
-  Serial.println(human_resistance/100000.0);
-  delay(1000);
+    float temp = getTemp();  // read temperature for every 100ms
+    temp = (temp * 1.8) + 32;
+    Serial.print(temp, 2);
+    Serial.print("'f , ");
+    gsr_average = getGsrAverage();
+    Serial.print("gsr_average = ");
+    Serial.print(gsr_average);
+    int human_resistance = getHumanResistance();
+    Serial.print(" , human_resistance = ");
+    Serial.println(human_resistance / 100000.0);
+    delay(1000);
 }
