@@ -34,6 +34,3 @@ def get_pulse_rate():
 def get_all_data():
     ret_code, all_data = get_whole_data(server + cse + ae + container_name + "?rcn=4")
     return all_data
-
-
-print(get_temperature())
