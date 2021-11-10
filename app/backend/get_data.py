@@ -4,10 +4,10 @@
 """
 from oneM2M_functions import *
 
-server = "http://127.0.0.1:8080"
+server = "https://esw-onem2m.iiit.ac.in"
 cse = "/~/in-cse/in-name"
-ae = "/Test-AE"
-container_name = "/Data-1"
+ae = "/Team-28/Node-1"
+container_name = "/Data"
 
 # [0: temperature, 1: blood pressure, 2: pulse rate]
 

@@ -2,6 +2,7 @@
 
 import requests
 import json
+from hidden import credentials
 
 
 def create_ae(uri_cse, ae_name, ae_labels="", data_format="json"):
@@ -16,7 +17,7 @@ def create_ae(uri_cse, ae_name, ae_labels="", data_format="json"):
     data_format : [str] payload format
     """
     headers = {
-        "X-M2M-Origin": "admin:admin",
+        "X-M2M-Origin": f"{credentials()}",
         "Content-type": "application/{};ty=2".format(data_format),
     }
 
@@ -51,7 +52,7 @@ def create_cnt(uri_ae, cnt_name, cnt_labels="", data_format="json"):
     """
 
     headers = {
-        "X-M2M-Origin": "admin:admin",
+        "X-M2M-Origin": f"{credentials()}",
         "Content-type": "application/{};ty=3".format(data_format),
     }
 
@@ -82,7 +83,7 @@ def create_desc_cin(
     """
 
     headers = {
-        "X-M2M-Origin": "admin:admin",
+        "X-M2M-Origin": f"{credentials()}",
         "Content-type": "application/{};ty=4".format(data_format),
     }
 
@@ -114,7 +115,7 @@ def create_data_cin(uri_cnt, value, cin_labels="", data_format="json"):
     fmt_ex : [str] payload format
     """
     headers = {
-        "X-M2M-Origin": "admin:admin",
+        "X-M2M-Origin": f"{credentials()}",
         "Content-type": "application/{};ty=4".format(data_format),
     }
 
@@ -139,7 +140,10 @@ def create_group(uri_cse, group_name, uri_list):
     fmt_ex : [str] payload format (json/XML)
     """
 
-    headers = {"X-M2M-Origin": "admin:admin", "Content-type": "application/json;ty=9"}
+    headers = {
+        "X-M2M-Origin": f"{credentials()}",
+        "Content-type": "application/json;ty=9",
+    }
 
     payload = {"m2m:grp": {"rn": group_name, "mt": 3, "mid": uri_list, "mnm": 10}}
 
@@ -167,7 +171,7 @@ def get_data(uri, data_format="json"):
     fmt_ex : [str] payload format
     """
     headers = {
-        "X-M2M-Origin": "admin:admin",
+        "X-M2M-Origin": f"{credentials()}",
         "Content-type": "application/{}".format(data_format),
     }
 
@@ -193,7 +197,7 @@ def get_whole_data(uri, data_format="json"):
     fmt_ex : [str] payload format
     """
     headers = {
-        "X-M2M-Origin": "admin:admin",
+        "X-M2M-Origin": f"{credentials()}",
         "Content-type": "application/{}".format(data_format),
     }
 
@@ -219,7 +223,7 @@ def get_group_data(uri, data_format="json"):
     fmt_ex : [str] payload format
     """
     headers = {
-        "X-M2M-Origin": "admin:admin",
+        "X-M2M-Origin": f"{credentials()}",
         "Content-type": "application/{}".format(data_format),
     }
 
@@ -248,7 +252,7 @@ def delete(uri, data_format="json"):
     fmt_ex : [str] payload format
     """
     headers = {
-        "X-M2M-Origin": "admin:admin",
+        "X-M2M-Origin": f"{credentials()}",
         "Content-type": "application/{}".format(data_format),
     }
 
@@ -273,7 +277,7 @@ def discovery(uri="", data_format="json"):
     fmt_ex : [str] payload format
     """
     headers = {
-        "X-M2M-Origin": "admin:admin",
+        "X-M2M-Origin": f"{credentials()}",
         "Content-type": "application/{}".format(data_format),
     }
 
