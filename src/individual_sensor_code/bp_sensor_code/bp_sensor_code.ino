@@ -20,7 +20,7 @@
 
 #define RESET_PIN 04
 #define MFIO_PIN 02
-#define RAWDATA_BUFFLEN 250
+//#define RAWDATA_BUFFLEN 250
 
 max32664 MAX32664(RESET_PIN, MFIO_PIN, RAWDATA_BUFFLEN);
 
@@ -59,7 +59,7 @@ void callibrateBPSENSOR() {
 }
 
 void setup() {
-    Serial.begin(57600);
+    Serial.begin(115200);
 
     Wire.begin();
 

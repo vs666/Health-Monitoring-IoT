@@ -1,5 +1,6 @@
 #include <Wire.h>
 
+#include <WiFiClientSecure.h>
 #include "Protocentral_MAX30205.h"
 #include "WebServer.h"
 #include "WiFi.h"
@@ -17,14 +18,28 @@ const char* ssid_2 = "harshaupper";
 const char* pswd = "Harsak@2002";
 
 // oneM2M : CSE params
-String CSE_IP      = "192.168.0.107";
+const char* CSE_IP      = "esw-onem2m.iiit.ac.in";
 //String CSE_IP      = "192.168.1.egin(9600);233";
-int   CSE_HTTP_PORT = 8080;
-String CSE_NAME    = "in-name";
-String CSE_M2M_ORIGIN  = "admin:admin";
+int   CSE_HTTP_PORT = 443;
+String CSE_NAME    = "~/in-cse/in-name";
+String CSE_M2M_ORIGIN  = "3ULsBQex0w:0z8Uh6re@6";
 
 
-WiFiClient client;
+
+String DESC_CNT_NAME = "DESCRIPTOR";
+String DATA_CNT_NAME = "DATA";
+String CMND_CNT_NAME = "COMMAND";
+int TY_AE  = 2;   
+int TY_CNT = 3; 
+int TY_CI  = 4;
+int TY_GRP = 9;
+int TY_SUB = 23;
+
+// HTTP constants
+int LOCAL_PORT = 9999;
+char* HTTP_CREATED = "HTTP/1.1 201 Created";
+char* HTTP_OK    = "HTTP/1.1 200 OK\r\n";
+int REQUEST_TIME_OUT = 5000; //ms
 
 WebServer server(80);
 IPAddress local_ip(192, 168, 0, 1);
@@ -33,6 +48,76 @@ IPAddress subnet(255, 255, 255, 0);
 
 int sensorValue = 0;
 int gsr_average = 0;
+
+String doPOST(String url, int ty, String rep) {
+
+  String postRequest = String() + "POST " + url + " HTTP/1.1\r\n" +
+                       "Host: " + CSE_IP + ":" + CSE_HTTP_PORT + "\r\n" +
+                       "X-M2M-Origin: " + CSE_M2M_ORIGIN + "\r\n" +
+                       "Content-Type: application/json;ty=" + ty + "\r\n" +
+                       "Content-Length: " + rep.length() + "\r\n"
+                       "Connection: close\r\n\n" +
+                       rep;
+
+  // Connect to the CSE address
+  Serial.println(postRequest);
+  Serial.println("connecting to push" );
+
+  // Get a client
+  WiFiClientSecure Secureclient;
+  Secureclient.setInsecure();
+   delay(1000);
+  if (!Secureclient.connect(CSE_IP, CSE_HTTP_PORT)) {
+    Serial.println("Connection failed !");
+    return "error";
+  }
+
+  // if connection succeeds, we show the request to be send
+#ifdef DEBUG
+  Serial.println(postRequest);
+#endif
+
+  // Send the HTTP POST request
+  Secureclient.print(postRequest);
+  
+  // Manage a timeout
+  unsigned long startTime = millis();
+  while (Secureclient.available() == 0) {
+    if (millis() - startTime > REQUEST_TIME_OUT) {
+      Serial.println("Client Timeout");
+      Secureclient.stop();
+      return "error";
+    }
+  }
+
+  // If success, Read the HTTP response
+  String result = "";
+  if (Secureclient.available()) {
+    result = Secureclient.readStringUntil('\r');
+   Serial.println(result);
+  }
+  while (Secureclient.available()) {
+    String line = Secureclient.readStringUntil('\r');
+    Serial.print(line);
+  }
+  Serial.println();
+  Serial.println("closing connection...");
+  return result;
+}
+
+// Method for creating an ContentInstance(CI) resource on the remote CSE under a specific CNT (this is done by sending a POST request)
+// param : ae --> the targted AE name (should be unique under the remote CSE)
+// param : cnt  --> the targeted CNT name (should be unique under this AE)
+// param : ciContent --> the CI content (not the name, we don't give a name for ContentInstances)
+String createCI(String ae, String cnt, String ciContent) {
+  String ciRepresentation =
+    "{\"m2m:cin\": {"
+    "\"con\":\"" + ciContent + "\""
+    "}}";
+  return doPOST("/" + CSE_NAME + "/" + ae + "/" + cnt, TY_CI, ciRepresentation);
+}
+
+
 char* hash(String inp) {
     char* payload;
     inp.toCharArray(payload, inp.length());
@@ -120,20 +205,14 @@ void handleRoot() {
 }
 
 void handleInformation() {
-    String information = "<!DOCTYPE html><html>\n";
-    information += "<head><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0, user-scalable=no\">\n";
-    information += "<title>Website title</title>\n";
-    information += "<style>html { font-family: Helvetica; display: inline-block; margin: 0px auto; text-align: center;}\n";
-    information += "body{margin-top: 50px;} h1 {color: #444444;margin: 50px auto 30px;} h3 {color: #444444;margin-bottom: 50px;}\n";
-    information += ".button {display: block;width: 80px;background-color: #3498db;border: none;color: white;padding: 13px 30px;text-decoration: none;font-size: 25px;margin: 0px auto 35px;cursor: pointer;border-radius: 4px;}\n";
-    information += ".button-on {background-color: #3498db;}\n";
-    information += ".button-on:active {background-color: #2980b9;}\n";
-    information += ".button-off {background-color: #34495e;}\n";
-    information += ".button-off:active {background-color: #2c3e50;}\n";
-    information += "p {font-size: 14px;color: #888;margin-bottom: 10px;}\n";
-    information += "</style>\n";
-    information += "</head>\n";
-    information += "<body>\n";
+    String information = "<!doctype html><html lang=\"en\"><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"><link href=\"https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css\" rel=\"stylesheet\" integrity=\"sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC\" crossorigin=\"anonymous\"><title>Health-Monitoring</title></head><body><nav class=\"navbar navbar-light bg-light\"><div class=\"container-fluid\"><a class=\"navbar-brand\" href=\"#\"><img src=\"https://drive.google.com/file/d/1lg3nc4N_UqkM0M9FkM11XHxMeThnp_Fy/view?usp=sharing\" alt=\"\" width=\"50\" height=\"50\" class=\"d-inline-block align-text-top\"> Health Monitoring Device</a></div></nav>";
+    information +="<div style=\"margin-left: 15%; margin-right: 15%;\"><h3>Temperature :";
+    information += String(getTemp(),1);
+    information += "&deg;F</h3><div class=\"progress\"><div class=\"progress-bar\" role=\"progressbar\" style=\"width: 25%\" aria-valuenow=\"";
+    information += String(getTemp(),1);
+    information += "\" aria-valuemin=\"0\" aria-valuemax=\"100\"></div></div></div><div style=\"margin-left: 15%; margin-right: 15%; margin-top: 3vh;\"><h3>GSR :";
+    information += String(getGsrAverage(),0);
+    information += "</h3></div><script src=\"https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js\" integrity=\"sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM\" crossorigin=\"anonymous\"></script></body></html>";
     /**
    * Enter the body of html page here
    */
@@ -169,8 +248,8 @@ void setup() {
     /**
    * Not sure what is the use of making 2 wifi APs. 
    */
-    WiFi.softAP(ssid_2, pswd);
-    WiFi.softAPConfig(local_ip, gateway, subnet);
+//    WiFi.softAP(ssid_2, pswd);
+//    WiFi.softAPConfig(local_ip, gateway, subnet);
     server.on("/", handleRoot);
     server.on("/information", handleInformation);
     /**
@@ -194,6 +273,21 @@ void setup() {
     }
     tempSensor.begin();  // set continuos mode, active mode
     Serial.println("temperature sensor active");
+    
+    
+//     int r=0;
+//  while ((!Secureclient.connect(CSE_IP, CSE_HTTP_PORT))&& (r<30)) {
+//    Serial.println("--");
+//    delay(100);
+//    r++;
+//  }
+//  if(r==30) {
+//    Serial.println("Connection failed");
+//  }
+//  else {
+//    Serial.println("Connected to web");
+//  }
+  createCI("Team-28", "Node-1/Data", "Trinadh the waste");
 }
 
 void loop() {
