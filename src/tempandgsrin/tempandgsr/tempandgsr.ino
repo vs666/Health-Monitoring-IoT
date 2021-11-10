@@ -146,32 +146,27 @@ String hash(String inp) {
 }
 
 String getCipher(String inp) {
-    char input[inp.length()];
-
-    inp.toCharArray(input, inp.length()+1);
-
-    mbedtls_aes_context aes;
-
-    char* key_unhashed = "abcdefghijklmnop";
-
-    String reta=hash(key_unhashed);
-    char key[reta.length()];
-    reta.toCharArray(key, reta.length()+1);
-    
-    unsigned char output[16];
-    mbedtls_aes_init(&aes);
-    mbedtls_aes_setkey_enc(&aes, (const unsigned char*)key, strlen(key) * 8);
-    mbedtls_aes_crypt_ecb(&aes, MBEDTLS_AES_ENCRYPT, (const unsigned char*)input, output);
-    mbedtls_aes_free(&aes);
-
-    String ret = "";
-    for (int i = 0; i < 16; i++) {
-        char str[3];
-
-        sprintf(str, "%02x", (int)output[i]);
-        ret += str;
+  String key = "password";
+  int x = 0;
+  int y = 0;
+  String ph = "";
+  String ret = "";
+  while(x < inp.length()){
+    if(y == 0){
+      y = 256;
+      ph=ph+key;
+      ph = hash(ph);
     }
-    return ret;
+    char elt = (inp[x]^ph[256 - y]);
+            char str[3];
+        sprintf(str, "%02x", (int)elt);
+        ret += str;
+
+    x++;
+    y--;
+  }
+  return ret;
+
 }
 
 String encryptData(float temp, long gsr, float h_resist,int sys,int dia,int hr,float spo2) {
