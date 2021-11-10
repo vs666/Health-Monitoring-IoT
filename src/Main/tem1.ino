@@ -1,1 +1,0 @@
-./../../individual_sensor_code/temp_sensor/tem1.ino
