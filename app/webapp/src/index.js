@@ -1,17 +1,46 @@
-import React from 'react'
-import ReactDOM from 'react-dom'
-import './index.css'
-import App from './App'
-import reportWebVitals from './reportWebVitals'
+// server code
+import React from 'react';
+import ReactDOM from 'react-dom';
+// import { renderToString } from 'react-dom/server'
+import './index.css';
+import 'bootstrap/dist/css/bootstrap.min.css'
+import App from './App';
+// const express = require('express');
+// const bp = require('body-parser');
+// const router = express.Router();
+// const app = express();
+// const data1 = require('./database_main.json')
+// var urlencodedParser = bp.urlencoded({ extended: false });
 
-ReactDOM.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>,
-  document.getElementById('root')
-)
+// import * as serviceWorker from './serviceWorker';
 
-// If you want to start measuring performance in your app, pass a function
-// to log results (for example: reportWebVitals(console.log))
-// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
-reportWebVitals()
+// router.get('/', (req, res) => {
+//   res.send(renderToString(f1(),'text/html'));
+// });
+
+
+// ReactDOM.hydrate(<App />, document.getElementById('root'));
+
+// localStorage.setItem('hash', 'Guest');
+// localStorage.setItem('usertype', 'Applicant');
+
+function f1() {
+
+  return (
+    ReactDOM.render(
+      <React.StrictMode>
+        <App />
+      </React.StrictMode>,
+      document.getElementById('root')));
+
+}
+
+f1();
+  // If you want your app to work offline and load faster, you can change
+// unregister() to register() below. Note this comes with some pitfalls.
+// Learn more about service workers: https://bit.ly/CRA-PWA
+// serviceWorker.unregister();
+
+// app.listen(3000, () => {
+//   console.log("Server running on port 3000");
+// });
