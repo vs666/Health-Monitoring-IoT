@@ -120,20 +120,14 @@ void handleRoot() {
 }
 
 void handleInformation() {
-    String information = "<!DOCTYPE html><html>\n";
-    information += "<head><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0, user-scalable=no\">\n";
-    information += "<title>Website title</title>\n";
-    information += "<style>html { font-family: Helvetica; display: inline-block; margin: 0px auto; text-align: center;}\n";
-    information += "body{margin-top: 50px;} h1 {color: #444444;margin: 50px auto 30px;} h3 {color: #444444;margin-bottom: 50px;}\n";
-    information += ".button {display: block;width: 80px;background-color: #3498db;border: none;color: white;padding: 13px 30px;text-decoration: none;font-size: 25px;margin: 0px auto 35px;cursor: pointer;border-radius: 4px;}\n";
-    information += ".button-on {background-color: #3498db;}\n";
-    information += ".button-on:active {background-color: #2980b9;}\n";
-    information += ".button-off {background-color: #34495e;}\n";
-    information += ".button-off:active {background-color: #2c3e50;}\n";
-    information += "p {font-size: 14px;color: #888;margin-bottom: 10px;}\n";
-    information += "</style>\n";
-    information += "</head>\n";
-    information += "<body>\n";
+    String information = "<!doctype html><html lang=\"en\"><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"><link href=\"https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css\" rel=\"stylesheet\" integrity=\"sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC\" crossorigin=\"anonymous\"><title>Health-Monitoring</title></head><body><nav class=\"navbar navbar-light bg-light\"><div class=\"container-fluid\"><a class=\"navbar-brand\" href=\"#\"><img src=\"https://drive.google.com/file/d/1lg3nc4N_UqkM0M9FkM11XHxMeThnp_Fy/view?usp=sharing\" alt=\"\" width=\"50\" height=\"50\" class=\"d-inline-block align-text-top\"> Health Monitoring Device</a></div></nav>";
+    information +="<div style=\"margin-left: 15%; margin-right: 15%;\"><h3>Temperature :";
+    information += String(getTemp(),1);
+    information += "&deg;F</h3><div class=\"progress\"><div class=\"progress-bar\" role=\"progressbar\" style=\"width: 25%\" aria-valuenow=\"";
+    information += String(getTemp(),1);
+    information += "\" aria-valuemin=\"0\" aria-valuemax=\"100\"></div></div></div><div style=\"margin-left: 15%; margin-right: 15%; margin-top: 3vh;\"><h3>GSR :";
+    information += String(getGsrAverage(),0);
+    information += "</h3></div><script src=\"https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js\" integrity=\"sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM\" crossorigin=\"anonymous\"></script></body></html>";
     /**
    * Enter the body of html page here
    */
