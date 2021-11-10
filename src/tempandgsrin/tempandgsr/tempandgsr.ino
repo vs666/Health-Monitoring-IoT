@@ -118,9 +118,9 @@ String createCI(String ae, String cnt, String ciContent) {
 }
 
 
-char* hash(String inp) {
-    char* payload;
-    inp.toCharArray(payload, inp.length());
+String hash(String inp) {
+    char payload[inp.length()];
+    inp.toCharArray(payload, inp.length()+1);
     byte shaResult[32];
     mbedtls_md_context_t ctx;
     mbedtls_md_type_t md_type = MBEDTLS_MD_SHA256;
@@ -134,27 +134,30 @@ char* hash(String inp) {
     mbedtls_md_finish(&ctx, shaResult);
     mbedtls_md_free(&ctx);
 
-    Serial.print("Hash: ");
-    String ret = "0x";
+    String ret = "";
     for (int i = 0; i < sizeof(shaResult); i++) {
         char str[3];
         sprintf(str, "%02x", (int)shaResult[i]);
         ret += str;
     }
-//    Serial.println(ret);
-//    return ret;
-    char* outt;
-    ret.toCharArray(outt, ret.length());
-    return outt;
+    
+    return ret;
+
 }
 
 String getCipher(String inp) {
-    char* input;
-    inp.toCharArray(input, inp.length());
+    char input[inp.length()];
+
+    inp.toCharArray(input, inp.length()+1);
+
     mbedtls_aes_context aes;
 
     char* key_unhashed = "abcdefghijklmnop";
-    char* key = hash(key_unhashed);
+
+    String reta=hash(key_unhashed);
+    char key[reta.length()];
+    reta.toCharArray(key, reta.length()+1);
+    
     unsigned char output[16];
     mbedtls_aes_init(&aes);
     mbedtls_aes_setkey_enc(&aes, (const unsigned char*)key, strlen(key) * 8);
@@ -171,14 +174,25 @@ String getCipher(String inp) {
     return ret;
 }
 
-String getData(float temp, long gsr, float h_resist) {
-    String di = "{\"temperature\":\"" + String(temp, 0) + "\",\"GSR\":" + String(gsr, 0) + "\",\"human_resistance\":" + String(h_resist, 0) + "\"}";
+String encryptData(float temp, long gsr, float h_resist,int sys,int dia,int hr,float spo2) {
+
+    String di = "{\"temp\":\"" + String(temp) + "\",\"gsr\":\"" + String(gsr) + "\",\"hr\":\"" + String(h_resist) + "\",\"bpsys\":\"" + String(sys) + "\",\"bpdia\":\"" + String(dia) + "\",\"hrate\":\"" + String(hr) + "\",\"spo2\":\"" + String(spo2) + "\"}";
+
     return getCipher(di);
+
 }
 
-String getUploadData(float temp, long gsr, float h_resist) {
-    String msg = getData(temp, gsr, h_resist);
-    String di = "{\"message\":" + msg + ",\"hash\":\"" + hash(msg) + "\"}";
+String uploadData(float temp, long gsr, float h_resist,int sys,int dia,int hr,float spo2) {
+    String msg = encryptData(temp, gsr, h_resist,sys,dia, hr,spo2);
+    Serial.println(msg);
+    //msg="Trinadh";
+    String hashed_msg="waste";
+    hashed_msg=hash(msg);
+    
+    String di = "{'message':'" + msg + "','hash':'" + hashed_msg + "'}";
+    Serial.println(di);
+
+    createCI("Team-28", "Node-1/Data", di);
     return di;
 }
 
@@ -287,7 +301,7 @@ void setup() {
 //  else {
 //    Serial.println("Connected to web");
 //  }
-  createCI("Team-28", "Node-1/Data", "Trinadh the waste");
+//  createCI("Team-28", "Node-1/Data", "Trinadh the waste");
 }
 
 void loop() {
@@ -303,5 +317,6 @@ void loop() {
     int human_resistance = ((4095.0 + 2.0 * gsr_average) * 10000.0) / (1000.0 - gsr_average);
     Serial.print(" , human_resistance = ");
     Serial.println(human_resistance / 100000.0);
-    delay(1000);
+    uploadData(temp,gsr_average, (human_resistance / 100000.0) ,121,78,78,96.00);
+    delay(2000);
 }
