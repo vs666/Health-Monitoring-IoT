@@ -5,6 +5,7 @@ from flask import *
 import flask
 from flask_cors import CORS
 from Crypto.Cipher import AES
+from app.backend.script import decrypt, encrypt
 from get_data import get_all_data
 # creating a flask app
 app = Flask(__name__)
@@ -19,17 +20,28 @@ def authenticate():
 @app.route('/getData',methods=['GET','POST'])
 def get_data():
     try:
+    # if True:
         param = request.get_json()
-        data = get_all_data(param['username'])  # Returns dictionary {'message':...,'hash':...}
+        print(param)
+        # data = get_all_data(param['username'])  # Returns dictionary {'message':...,'hash':...}
+        op_ = get_all_data()[-1]['con']
         dec_key = param['key']
-        decipher = AES.new((int(sha256(dec_key).hexdigest(),16)).to_bytes(32,'big'), AES.MODE_ECB)
-        data_out = json.loads(decipher.decrypt(data['message']).decode())
-        if data_out['hash'] == sha256(data['message']).hexdigest():
-            return {'status':'ok','message':data_out}
+        print(op_)
+        op = ""
+        for i in range(len(op_)):
+            if op_[i] == '\'':
+                op += '\"'
+            else: 
+                op += op_[i]
+        data = json.loads(op)  # Returns dictionary {'message':...,'hash':...}
+        print('data',data,type(data),'key',dec_key)
+        dec_msg = decrypt(data['message'],dec_key)
+        if sha256(encrypt(dec_msg,dec_key)).hexdigest() == data['hash']:
+            return {'status':'ok','message':dec_msg}
         else:
             return {'status':'error','log':'checksum failed'}
     except:
-        return {'status':'error','log':'server error'}
+        return {'status':'error','log':'server error or invalid key'}
 
 
 @app.route('/knock')
@@ -41,4 +53,4 @@ def knock():
 
 if __name__ == '__main__':
     # run the app
-    app.run(debug=True,port=PORT)
+    app.run(debug=True,port=5000)
