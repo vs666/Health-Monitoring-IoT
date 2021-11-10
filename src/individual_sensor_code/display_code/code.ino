@@ -133,16 +133,15 @@ void loop() {
         {                                                 // since getting heart rate and O2 then get some bew values
             tft.fillRect(0, 104, 128, 16, ST7735_BLACK);  // Clear the old values
             BPM = round(pox.getHeartRate());              // Get BPM
-            if ((BPM < 60) | (BPM > 110)) {                // If too low or high for a resting heart rate then display in red
+            if ((BPM < 60) | (BPM > 110)) {               // If too low or high for a resting heart rate then display in red
                 tft.setTextColor(ST7735_RED);
-            }
-            else {
+            } else {
                 tft.setTextColor(ST7735_GREEN);  // else display in green
             }
-            tft.setCursor(0, 104);               // Put BPM at this position
-            tft.print(BPM);                      // print BPM to screen
-            O2 = pox.getSpO2();                  // Get the O2
-            if (O2 < 94)                         // If too low then display in red
+            tft.setCursor(0, 104);  // Put BPM at this position
+            tft.print(BPM);         // print BPM to screen
+            O2 = pox.getSpO2();     // Get the O2
+            if (O2 < 94)            // If too low then display in red
                 tft.setTextColor(ST7735_RED);
             else
                 tft.setTextColor(ST7735_GREEN);  // else green
