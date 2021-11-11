@@ -1,7 +1,18 @@
 import React, { Component } from 'react'
 import axios from 'axios'
-import { Button, Form, Card, Jumbotron, Table, Row, Col } from 'react-bootstrap'
+import {
+  Button,
+  Form,
+  Card,
+  Jumbotron,
+  Table,
+  Row,
+  Col,
+  Container,
+} from 'react-bootstrap'
 import './Dash.css'
+import SimpleCard from './Card'
+import Grid from '@material-ui/core/Grid'
 
 export default class Dash extends Component {
   constructor(props) {
@@ -43,34 +54,20 @@ export default class Dash extends Component {
   render() {
     return (
       <div style={{ paddingTop: '10%', paddingRight: '2vh' }}>
-        {/* <p className="top-tag" style={{ textAlign: 'right' }}>{this.state.username}</p> */}
-        <div>
-          <Jumbotron
-            style={{
-              marginLeft: '5vh',
-              marginRight: '5vh',
-              color: 'black',
-              backgroundColor: 'rgba(190,190,255,0.5)',
-            }}
-          >
-            <Col>
-              <Table>
-                <Row>
-                  <Col>Temperature</Col>
-                  <Col>{this.state.temp}</Col>
-                </Row>
-                <Row>
-                  <Col>GSR</Col>
-                  <Col>{this.state.gsr}</Col>
-                </Row>
-                <Row>
-                  <Col>Blood Pressure</Col>
-                  <Col>{this.state.blood_pressure}</Col>
-                </Row>
-              </Table>
-            </Col>
-          </Jumbotron>
-        </div>
+        <Grid container justifyContent="center" spacing={24}>
+          <Grid item md={3}>
+            <SimpleCard
+              title="Blood Pressure"
+              value={this.state.blood_pressure}
+            />
+          </Grid>
+          <Grid item md={3}>
+            <SimpleCard title="Temperature" value={this.state.temp} />
+          </Grid>
+          <Grid item md={3}>
+            <SimpleCard title="Human Resistance" value={this.state.gsr} />
+          </Grid>
+        </Grid>
         <div
           style={{ margin: '0', position: 'absolute', top: '50%', left: '50%' }}
         >
