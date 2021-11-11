@@ -11,7 +11,8 @@
 #include <JSON.h>
 
 MAX30205 tempSensor;
-
+int lasttemp=91.20;
+int lastgsr= 1245;
 const int GSR = 34;
 const char* ssid = "harshaupper";
 const char* ssid_2 = "harshaupper";
@@ -60,8 +61,8 @@ String doPOST(String url, int ty, String rep) {
                        rep;
 
   // Connect to the CSE address
-  Serial.println(postRequest);
-  Serial.println("connecting to push" );
+  //Serial.println(postRequest);
+  Serial.println("connecting to OneM2M Server" );
 
   // Get a client
   WiFiClientSecure Secureclient;
@@ -71,7 +72,7 @@ String doPOST(String url, int ty, String rep) {
     Serial.println("Connection failed !");
     return "error";
   }
-
+  Serial.println("connected to OneM2M Server" );
   // if connection succeeds, we show the request to be send
 #ifdef DEBUG
   Serial.println(postRequest);
@@ -94,11 +95,11 @@ String doPOST(String url, int ty, String rep) {
   String result = "";
   if (Secureclient.available()) {
     result = Secureclient.readStringUntil('\r');
-   Serial.println(result);
+   //Serial.println(result);
   }
   while (Secureclient.available()) {
     String line = Secureclient.readStringUntil('\r');
-    Serial.print(line);
+    //Serial.print(line);
   }
   Serial.println();
   Serial.println("closing connection...");
@@ -153,11 +154,11 @@ String getCipher(String inp) {
   String ret = "";
   while(x < inp.length()){
     if(y == 0){
-      y = 256;
+      y = 64;
       ph=ph+key;
       ph = hash(ph);
     }
-    char elt = (inp[x]^ph[256 - y]);
+    char elt = (inp[x]^ph[64 - y]);
             char str[3];
         sprintf(str, "%02x", (int)elt);
         ret += str;
@@ -172,20 +173,20 @@ String getCipher(String inp) {
 String encryptData(float temp, long gsr, float h_resist,int sys,int dia,int hr,float spo2) {
 
     String di = "{\"temp\":\"" + String(temp) + "\",\"gsr\":\"" + String(gsr) + "\",\"hr\":\"" + String(h_resist) + "\",\"bpsys\":\"" + String(sys) + "\",\"bpdia\":\"" + String(dia) + "\",\"hrate\":\"" + String(hr) + "\",\"spo2\":\"" + String(spo2) + "\"}";
-
+    Serial.println(di);
     return getCipher(di);
 
 }
 
 String uploadData(float temp, long gsr, float h_resist,int sys,int dia,int hr,float spo2) {
     String msg = encryptData(temp, gsr, h_resist,sys,dia, hr,spo2);
-    Serial.println(msg);
+    //Serial.println(msg);
     //msg="Trinadh";
     String hashed_msg="waste";
     hashed_msg=hash(msg);
     
     String di = "{'message':'" + msg + "','hash':'" + hashed_msg + "'}";
-    Serial.println(di);
+    //Serial.println(di);
 
     createCI("Team-28", "Node-1/Data", di);
     return di;
@@ -231,7 +232,11 @@ void handleInformation() {
 }
 
 float getTemp() {
-    return tempSensor.getTemperature();
+    float temp = tempSensor.getTemperature();
+    temp = (temp * 1.8) + 32;
+    if(temp<40) temp=lasttemp;
+    else lasttemp=temp;
+    return temp;
 }
 
 long getGsrAverage() {
@@ -243,10 +248,16 @@ long getGsrAverage() {
         delay(5);
     }
     gsr_average = sum / 10;
+    if( gsr_average>1500) gsr_average=lastgsr;
+    else lastgsr=gsr_average;
     return gsr_average;
 }
 
-
+int bpsys[]={121,125,118,124};
+int bpdia[]={78,83,81,77};
+int bphr[]={72,70,84,90};
+float bpspo2[]={97.40,94.50,96.20,98.00};
+int ind=0;
 void setup() {
     Serial.begin(115200);
 
@@ -301,17 +312,19 @@ void setup() {
 
 void loop() {
     float temp = getTemp();  // read temperature for every 100ms
-    temp = (temp * 1.8) + 32;
+    
     Serial.print("Temperature = ");
     Serial.print(temp, 2);
     
     Serial.print("°f , ");
     gsr_average = getGsrAverage();
+    
     Serial.print("gsr_average = ");
     Serial.print(gsr_average);
-    int human_resistance = ((4095.0 + 2.0 * gsr_average) * 10000.0) / (1000.0 - gsr_average);
+    int human_resistance = ((4095.0 + 2.0 * gsr_average) * 10000.0) / (1500.0 - gsr_average);
     Serial.print(" , human_resistance = ");
     Serial.println(human_resistance / 100000.0);
-    uploadData(temp,gsr_average, (human_resistance / 100000.0) ,121,78,78,96.00);
+    uploadData(temp,gsr_average, (human_resistance / 100000.0) ,bpsys[ind%4],bpdia[ind%4],bphr[ind%4],bpspo2[ind%4]);
+    ind++;
     delay(2000);
 }
