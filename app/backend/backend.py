@@ -6,32 +6,33 @@ from flask_cors import CORS
 from Crypto.Cipher import AES
 from script import decrypt, encrypt
 from get_data import get_all_data
+
 # creating a flask app
 
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}})
 
 
-@app.route('/authenticate',methods=['GET','POST'])
+@app.route("/authenticate", methods=["GET", "POST"])
 def authenticate():
-    return {'status':'ok'}
+    return {"status": "ok"}
 
 
-@app.route('/getData',methods=['GET','POST'])
+@app.route("/getData", methods=["GET", "POST"])
 def get_data():
     # try:
     if True:
         param = request.get_json()
         print(param)
         # data = get_all_data(param['username'])  # Returns dictionary {'message':...,'hash':...}
-        op_ = get_all_data()[-1]['con']
-        dec_key = param['key']
+        op_ = get_all_data()[-1]["con"]
+        dec_key = param["key"]
         print(op_)
         op = ""
         for i in range(len(op_)):
-            if op_[i] == '\'':
-                op += '\"'
-            else: 
+            if op_[i] == "'":
+                op += '"'
+            else:
                 op += op_[i]
         data = json.loads(op)  # Returns dictionary {'message':...,'hash':...}
         print('data',data,type(data),'key',dec_key)
@@ -44,13 +45,14 @@ def get_data():
         # return {'status':'error','log':'server error or invalid key'}
 
 
-@app.route('/knock')
+@app.route("/knock")
 def knock():
-    return '''
-        <h1> Hey, I am a messenger from the server</h1>
-        <p> Don't worry, I am up and running</p>
-    '''        
+    return """
+        <h1>Hey, I am a messenger from the server</h1>
+        <p>Don't worry, I am up and running</p>
+    """
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     # run the app
-    app.run(debug=True,port=5000)
+    app.run(debug=True, port=5000)

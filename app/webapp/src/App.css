@@ -1,6 +1,6 @@
 .App {
   text-align: center;
-  background-image: url('./images/background_main.jpg');
+  background-image: url('./images/device.jpeg');
   background-repeat: no-repeat;
   background-size: cover;
   /* background-size: cover; */
@@ -19,7 +19,7 @@
 
 .App-header {
   min-height: 100vh;
-  display:flow-root;
+  display: flow-root;
   flex-direction: column;
   justify-content: center;
   font-size: calc(10px + 2vmin);
