@@ -29,7 +29,7 @@ const Navigation = () => {
         style={{ backgroundColor: 'rgba(0,0,0,0.3)' }}
       >
         {/* <Navbar.Brand href="/"><img src={require("")} alt="PC-Cart" height="64" width="64" /></Navbar.Brand> */}
-        <h2 style={{ padding: '1vh' }}>Hello</h2>
+        <h2 style={{ padding: '1vh' }}>Wearable-Device</h2>
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar -nav" className="navbar a">
           <Nav className="mr-auto" style={{ color: '#fff' }}>
