@@ -2,12 +2,11 @@ from hashlib import sha256
 import json
 from typing import Protocol
 from flask import *
+import flask
 from flask_cors import CORS
 from Crypto.Cipher import AES
-from script import decrypt, encrypt
 from get_data import get_all_data
 # creating a flask app
-
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}})
 
@@ -25,7 +24,6 @@ def get_data():
         print(param)
         # data = get_all_data(param['username'])  # Returns dictionary {'message':...,'hash':...}
         op_ = get_all_data()[-1]['con']
-        dec_key = param['key']
         print(op_)
         op = ""
         for i in range(len(op_)):
@@ -34,14 +32,41 @@ def get_data():
             else: 
                 op += op_[i]
         data = json.loads(op)  # Returns dictionary {'message':...,'hash':...}
-        print('data',data,type(data),'key',dec_key)
-        dec_msg = decrypt(data['message'],dec_key)
-        if True or sha256(encrypt(dec_msg,dec_key)).hexdigest() == data['hash']:
-            return {'status':'ok','message':dec_msg}
+        print('data',data,type(data))#,'key',dec_key)
+        # dec_key = param['key']
+        dec_key = sha256(str(param['key']).encode('utf-8')).hexdigest()
+        decipher = AES.new((int(dec_key,16).to_bytes(32,'big')), AES.MODE_CBC)
+        decs = decipher.decrypt((int(data['message'],16).to_bytes(64,'big')))
+        print(type(decs),decs)
+        # count = 0
+        # for i in decs:
+        #     print(chr(i),'ee',count)
+        #     count += 1
+        first = 0
+
+        last = len(decs)-1
+        while chr(decs[first]) != '\"':
+            first+=1
+        while chr(decs[last]) != '\"':
+            last-=1
+        f_new = first
+        t_str = ""
+        while f_new < len(decs):
+            t_str += chr(decs[f_new])
+            f_new+=1
+        de_new = ""
+        # print(first,last)
+        while first <= last:
+            de_new += chr(decs[first])
+            first+=1
+        # print(de_new,'final')
+        data_out = json.loads(de_new)
+        if sha256(decipher.encrypt(t_str)).hexdigest() == data['hash']:
+            return {'status':'ok','message':data_out}
         else:
             return {'status':'error','log':'checksum failed'}
     # except:
-        # return {'status':'error','log':'server error or invalid key'}
+    #     return {'status':'error','log':'server error or invalid key'}
 
 
 @app.route('/knock')

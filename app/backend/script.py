@@ -9,7 +9,7 @@ def encrypt(inp,key):
             y = 256
             ph += key
             ph = sha256(ph.encode('utf-8')).hexdigest()
-        elt = hex(ord(inp[x])^ord(ph[256-y]))[2:]
+        elt = hex(ord(inp[x])^ord(ph[64-y]))[2:]
         if len(elt) == 1:
             elt = '0'+elt
         # print(x,y,elt)
@@ -32,13 +32,13 @@ def decrypt(inp,key):
     ret = ""
     while x < len(inp):
         if y == 0:
-            y = 256
+            y = 64
             ph += key
             ph = sha256(ph.encode('utf-8')).hexdigest()
-        elt = chr(inp[x]^ord(ph[256-y]))
+        elt = chr(inp[x]^ord(ph[64-y]))
         ret += elt
         x += 1
         y-=1
     return ret
 
-print(decrypt("5a060a5e5b"))
+# print(decrypt("5a060a5e5b"))
