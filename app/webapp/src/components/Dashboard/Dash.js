@@ -85,7 +85,6 @@ export default class Dash extends Component {
                   <Form.Group controlId="formBasicEmail">
                     <Form.Label>Key</Form.Label>
                     <Form.Control
-                      type="email"
                       validations={['required', 'isEmail']}
                       name="email"
                       id="email"

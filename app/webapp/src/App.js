@@ -4,9 +4,9 @@ import { Route, BrowserRouter, Switch } from 'react-router-dom'
 import './App.css'
 
 // import SignUp from './Components/SignUp/SignUp';
-import Dash from './Components/Dashboard/Dash'
+import Dash from './components/Dashboard/Dash'
 // import Login from './Components/LoginPage/Login';
-import Navigation from './Components/NavB/Navigation'
+import Navigation from './components/NavB/Navigation'
 // import FSign from './Components/SignUp/FSign';
 // import Logout from './Components/LoginPage/Logout';
 

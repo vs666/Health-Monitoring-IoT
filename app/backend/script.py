@@ -43,6 +43,3 @@ def decrypt(inp, key):
         x += 1
         y -= 1
     return ret
-
-
-print(decrypt("5a060a5e5b"))

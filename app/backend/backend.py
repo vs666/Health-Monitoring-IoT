@@ -5,7 +5,7 @@ from flask import *
 import flask
 from flask_cors import CORS
 from Crypto.Cipher import AES
-from app.backend.script import decrypt, encrypt
+from script import decrypt, encrypt
 from get_data import get_all_data
 
 # creating a flask app
@@ -48,8 +48,8 @@ def get_data():
 @app.route("/knock")
 def knock():
     return """
-        <h1> Hey, I am a messenger from the server</h1>
-        <p> Don't worry, I am up and running</p>
+        <h1>Hey, I am a messenger from the server</h1>
+        <p>Don't worry, I am up and running</p>
     """
 
 
