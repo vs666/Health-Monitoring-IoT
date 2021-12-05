@@ -6,11 +6,12 @@ from flask_cors import CORS
 from Crypto.Cipher import AES
 from script import decrypt, encrypt
 from get_data import get_all_data
-
+from flask_talisman import Talisman
 # creating a flask app
 
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}})
+Talisman(app,content_security_policy=None)
 
 
 @app.route("/authenticate", methods=["GET", "POST"])
