@@ -42,6 +42,12 @@ const Navigation = () => {
               Dashboard
             </Nav.Link>
           </Nav>
+          <Nav className="" style={{ color: '#fff' }}>
+            <Nav.Link href="/updateInfo" style={{ color: '#000' }}>
+              Personal Info
+            </Nav.Link>
+          </Nav>
+
         </Navbar.Collapse>
       </Navbar>
     </Styles>
