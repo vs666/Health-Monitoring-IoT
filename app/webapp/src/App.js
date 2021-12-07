@@ -17,6 +17,7 @@ class App extends Component {
       data: null,
     }
   }
+  
   componentDidMount() {
     // Call our fetch function below once the component mounts
     this.callBackendAPI()

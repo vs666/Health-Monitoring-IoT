@@ -46,7 +46,12 @@ export default class Dash extends Component {
  
 
   getMsg_panicAttacks = ()=>{
-
+    if((parseInt(this.state.bp_sys) >= 140.0 && this.state.bp_dia >= 90) && (parseInt(this.state.heart_rate) >= 120)){
+      return "This is an alert for a panic attack and/or a possible pre-emptive warning for a cardiac arrest. Kindly seek medical help immediately."
+    }
+    else {
+      return "All good. Carry on."
+    }
   }
 
   login = (event) => {
@@ -107,11 +112,6 @@ export default class Dash extends Component {
           </Grid>
 
         </Grid>
-          <ProgressBar style={{margin:'5vh'}}>
-            <ProgressBar striped variant="danger" now={(parseFloat(this.state.temp)-80)*2.5} />
-            <ProgressBar striped variant="success" now={(120 - parseFloat(this.state.temp))*2.5} />
-            {/* <ProgressBar striped variant="success" now={(120 - 100)*2.5} /> */}
-          </ProgressBar>
           <Row>
             <Col>
           <Alert variant="warning" style={{marginLeft:'5vh'}}>
@@ -129,20 +129,26 @@ export default class Dash extends Component {
           <Alert variant="danger" style={{paddingLeft:'5vh'}}>
             <Alert.Heading>Panic Attack Alert</Alert.Heading>
             <p>
-              
+              {this.getMsg_panicAttacks()}              
             </p>
             <hr />
             <p className="mb-0">
-              
+              Panic Attack : Stress and anxiety, high blood pressure, heart rate, and/or respiratory symptoms. If such symptoms occur, consult a doctor immediately.
             </p>
           </Alert>
             </Col>
           </Row>
-
-
-        <div
-          style={{ margin: '0', top: '50%', left: '50%' }}
-        >
+        <div>
+        <iframe width={"450"} height={"260"} style={{border: '1px solid #cccccc;', margin:'5vh'}} src={"https://thingspeak.com/channels/1599973/charts/1?bgcolor=%23ffffff&color=%23d62020&dynamic=true&results=60&title=BodyTemperature&type=line"}></iframe>
+        <iframe width={"450"} height={"260"} style={{border: '1px solid #cccccc;', margin:'5vh'}} src={"https://thingspeak.com/channels/1599973/charts/2?bgcolor=%23ffffff&color=%23d62020&dynamic=true&results=60&title=HumanResistance&type=line"}></iframe>
+        <br></br>
+        <iframe width={"450"} height={"260"} style={{border: '1px solid #cccccc;', margin:'5vh'}} src={"https://thingspeak.com/channels/1599973/charts/1?bgcolor=%23ffffff&color=%23d62020&dynamic=true&results=60&title=BP%28sys%29&type=line"}></iframe>
+        <iframe width={"450"} height={"260"} style={{border: '1px solid #cccccc;', margin:'5vh'}} src={"https://thingspeak.com/channels/1599973/charts/1?bgcolor=%23ffffff&color=%23d62020&dynamic=true&results=60&title=BP%28dia%29e&type=line"}></iframe>
+        <br></br>
+        <iframe width={"450"} height={"260"} style={{border: '1px solid #cccccc;', margin:'5vh'}} src={"https://thingspeak.com/channels/1599973/charts/1?bgcolor=%23ffffff&color=%23d62020&dynamic=true&results=60&title=HeartRate&type=line"}></iframe>
+        <iframe width={"450"} height={"260"} style={{border: '1px solid #cccccc;', margin:'5vh'}} src={"https://thingspeak.com/channels/1599973/charts/1?bgcolor=%23ffffff&color=%23d62020&dynamic=true&results=60&title=SPO2&type=line"}></iframe>
+        </div>
+        <div style={{ margin: '0', top: '50%', left: '50%' }}>
           <div className="container" style={{ marginTop: '2vh' }}>
             <Card style={{ width: '18rem',color:'white',width:'bolder', backgroundColor: 'rgba(20,20,20,0.3)' }}>
               <Card.Body>
