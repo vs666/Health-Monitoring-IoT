@@ -2,6 +2,7 @@ import logo from './logo.svg'
 import React, { Component } from 'react'
 import { Route, BrowserRouter, Switch } from 'react-router-dom'
 import './App.css'
+import Upd from './components/Update/Upd'
 
 // import SignUp from './Components/SignUp/SignUp';
 import Dash from './components/Dashboard/Dash'
@@ -53,6 +54,9 @@ class App extends Component {
             <Route exact path="/"></Route>
             <Route path="/dashboard">
               <Dash />
+              </Route>
+            <Route path="/updateInfo">
+              <Upd />
             </Route>
           </BrowserRouter>
         </header>

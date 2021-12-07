@@ -26,7 +26,8 @@ export default class Dash extends Component {
       bp_sys : '',
       gsr: '-',
       spo2:'',
-      heart_rate:''
+      heart_rate:'',
+      covid_stat:false,
     }
     this.interval = setInterval(() => {if(this.state.key!=''){this.login()}}, (1000 * 5))
     //destroy interval on unmount
@@ -36,11 +37,11 @@ export default class Dash extends Component {
     return () => clearInterval(this.interval)
   }  
   getMsg_spo2=()=>{
-    if(parseFloat(this.state.spo2) <= 95.0){
-      return "Your SPo2 levels are very low. Please refer to medical assistance immediately."
+    if(this.state.covid_stat){
+      return "Our ML predicts chance of Covid. Please refer to medical assistance immediately."
     }
     else {
-      return "All good. Carry on."
+      return "ML says all good. Carry on."
     }
   }
  
@@ -76,9 +77,10 @@ export default class Dash extends Component {
             bp_dia: elt['bpdia'],
             bp_sys: elt['bpsys'],
             spo2:elt['spo2'],
-            heart_rate:elt['hrate']
-            // blood_pressure: response.data['message']['blood_pressure'],
+            heart_rate:elt['hrate'],
+            covid_stat: response.data['covidstat']==0?false:true,
           })
+          console.log(response);
         } else {
           console.log(response.data)
         }
@@ -139,14 +141,14 @@ export default class Dash extends Component {
             </Col>
           </Row>
         <div>
-        <iframe width={"450"} height={"260"} style={{border: '1px solid #cccccc;', margin:'5vh'}} src={"https://thingspeak.com/channels/1599973/charts/1?bgcolor=%23ffffff&color=%23d62020&dynamic=true&results=60&title=BodyTemperature&type=line"}></iframe>
-        <iframe width={"450"} height={"260"} style={{border: '1px solid #cccccc;', margin:'5vh'}} src={"https://thingspeak.com/channels/1599973/charts/2?bgcolor=%23ffffff&color=%23d62020&dynamic=true&results=60&title=HumanResistance&type=line"}></iframe>
-        <br></br>
-        <iframe width={"450"} height={"260"} style={{border: '1px solid #cccccc;', margin:'5vh'}} src={"https://thingspeak.com/channels/1599973/charts/1?bgcolor=%23ffffff&color=%23d62020&dynamic=true&results=60&title=BP%28sys%29&type=line"}></iframe>
-        <iframe width={"450"} height={"260"} style={{border: '1px solid #cccccc;', margin:'5vh'}} src={"https://thingspeak.com/channels/1599973/charts/1?bgcolor=%23ffffff&color=%23d62020&dynamic=true&results=60&title=BP%28dia%29e&type=line"}></iframe>
-        <br></br>
-        <iframe width={"450"} height={"260"} style={{border: '1px solid #cccccc;', margin:'5vh'}} src={"https://thingspeak.com/channels/1599973/charts/1?bgcolor=%23ffffff&color=%23d62020&dynamic=true&results=60&title=HeartRate&type=line"}></iframe>
-        <iframe width={"450"} height={"260"} style={{border: '1px solid #cccccc;', margin:'5vh'}} src={"https://thingspeak.com/channels/1599973/charts/1?bgcolor=%23ffffff&color=%23d62020&dynamic=true&results=60&title=SPO2&type=line"}></iframe>
+          <iframe width={"450"} height={"260"} style={{border: '1px solid #cccccc;', margin:'5vh'}} src={"https://thingspeak.com/channels/1599973/charts/1?bgcolor=%23ffffff&color=%23d62020&dynamic=true&results=60&title=BodyTemperature&type=line"}></iframe>
+          <iframe width={"450"} height={"260"} style={{border: '1px solid #cccccc;', margin:'5vh'}} src={"https://thingspeak.com/channels/1599973/charts/2?bgcolor=%23ffffff&color=%23d62020&dynamic=true&results=60&title=HumanResistance&type=line"}></iframe>
+          <br></br>
+          <iframe width={"450"} height={"260"} style={{border: '1px solid #cccccc;', margin:'5vh'}} src={"https://thingspeak.com/channels/1599973/charts/1?bgcolor=%23ffffff&color=%23d62020&dynamic=true&results=60&title=BP%28sys%29&type=line"}></iframe>
+          <iframe width={"450"} height={"260"} style={{border: '1px solid #cccccc;', margin:'5vh'}} src={"https://thingspeak.com/channels/1599973/charts/1?bgcolor=%23ffffff&color=%23d62020&dynamic=true&results=60&title=BP%28dia%29e&type=line"}></iframe>
+            <br></br>
+          <iframe width={"450"} height={"260"} style={{border: '1px solid #cccccc;', margin:'5vh'}} src={"https://thingspeak.com/channels/1599973/charts/1?bgcolor=%23ffffff&color=%23d62020&dynamic=true&results=60&title=HeartRate&type=line"}></iframe>
+          <iframe width={"450"} height={"260"} style={{border: '1px solid #cccccc;', margin:'5vh'}} src={"https://thingspeak.com/channels/1599973/charts/1?bgcolor=%23ffffff&color=%23d62020&dynamic=true&results=60&title=SPO2&type=line"}></iframe>
         </div>
         <div style={{ margin: '0', top: '50%', left: '50%' }}>
           <div className="container" style={{ marginTop: '2vh' }}>
