@@ -96,7 +96,8 @@ void setup(){
 
     delay(10000);
     Serial.println("failed calib, please retsart");
-    //ret = MAX32664.startBPTcalibration();
+    Serial.println(ret);
+    ret = MAX32664.startBPTcalibration();
   }
 
   delay(1000);
