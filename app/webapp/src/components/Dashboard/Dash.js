@@ -141,14 +141,14 @@ export default class Dash extends Component {
             </Col>
           </Row>
         <div>
-          <iframe width={"450"} height={"260"} style={{border: '1px solid #cccccc;', margin:'5vh'}} src={"https://thingspeak.com/channels/1599973/charts/1?bgcolor=%23ffffff&color=%23d62020&dynamic=true&results=60&title=BodyTemperature&type=line"}></iframe>
-          <iframe width={"450"} height={"260"} style={{border: '1px solid #cccccc;', margin:'5vh'}} src={"https://thingspeak.com/channels/1599973/charts/2?bgcolor=%23ffffff&color=%23d62020&dynamic=true&results=60&title=HumanResistance&type=line"}></iframe>
+          <iframe width={"450"} height={"260"} style={{border: '1px solid #cccccc;', margin:'5vh'}} src={"https://thingspeak.com/channels/1600183/charts/1?bgcolor=%23ffffff&color=%23d62020&dynamic=true&results=60&title=BodyTemperature&type=line"}></iframe>
+          <iframe width={"450"} height={"260"} style={{border: '1px solid #cccccc;', margin:'5vh'}} src={"https://thingspeak.com/channels/1600183/charts/2?bgcolor=%23ffffff&color=%23d62020&dynamic=true&results=60&title=Human+Resistance&type=line"}></iframe>
           <br></br>
-          <iframe width={"450"} height={"260"} style={{border: '1px solid #cccccc;', margin:'5vh'}} src={"https://thingspeak.com/channels/1599973/charts/1?bgcolor=%23ffffff&color=%23d62020&dynamic=true&results=60&title=BP%28sys%29&type=line"}></iframe>
-          <iframe width={"450"} height={"260"} style={{border: '1px solid #cccccc;', margin:'5vh'}} src={"https://thingspeak.com/channels/1599973/charts/1?bgcolor=%23ffffff&color=%23d62020&dynamic=true&results=60&title=BP%28dia%29e&type=line"}></iframe>
+          <iframe width={"450"} height={"260"} style={{border: '1px solid #cccccc;', margin:'5vh'}} src={"https://thingspeak.com/channels/1600183/charts/3?bgcolor=%23ffffff&color=%23d62020&dynamic=true&results=60&title=BP%28sys%29&type=line"}></iframe>
+          <iframe width={"450"} height={"260"} style={{border: '1px solid #cccccc;', margin:'5vh'}} src={"https://thingspeak.com/channels/1600183/charts/4?bgcolor=%23ffffff&color=%23d62020&dynamic=true&results=60&title=BP%28dia%29&type=line"}></iframe>
             <br></br>
-          <iframe width={"450"} height={"260"} style={{border: '1px solid #cccccc;', margin:'5vh'}} src={"https://thingspeak.com/channels/1599973/charts/1?bgcolor=%23ffffff&color=%23d62020&dynamic=true&results=60&title=HeartRate&type=line"}></iframe>
-          <iframe width={"450"} height={"260"} style={{border: '1px solid #cccccc;', margin:'5vh'}} src={"https://thingspeak.com/channels/1599973/charts/1?bgcolor=%23ffffff&color=%23d62020&dynamic=true&results=60&title=SPO2&type=line"}></iframe>
+          <iframe width={"450"} height={"260"} style={{border: '1px solid #cccccc;', margin:'5vh'}} src={"https://thingspeak.com/channels/1600183/charts/5?bgcolor=%23ffffff&color=%23d62020&dynamic=true&results=60&title=HeartRate&type=line"}></iframe>
+          <iframe width={"450"} height={"260"} style={{border: '1px solid #cccccc;', margin:'5vh'}} src={"https://thingspeak.com/channels/1600183/charts/6?bgcolor=%23ffffff&color=%23d62020&dynamic=true&results=60&title=SPO2&type=line"}></iframe>
         </div>
         <div style={{ margin: '0', top: '50%', left: '50%' }}>
           <div className="container" style={{ marginTop: '2vh' }}>
