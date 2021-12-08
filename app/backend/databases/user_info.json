@@ -1,7 +1,1 @@
-{
-    "username": "User1",
-    "gender": "0",
-    "BMI": "24.0",
-    "age": "22",
-    "BSA": "0.0"
-}
+{"username": "User1", "gender": "0", "BMI": "25.5", "age": "20", "BSA": "0.0"}
